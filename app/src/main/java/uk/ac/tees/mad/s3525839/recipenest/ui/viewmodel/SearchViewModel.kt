@@ -17,7 +17,7 @@ import uk.ac.tees.mad.s3525839.recipenest.data.local.RecipeDatabase
 import uk.ac.tees.mad.s3525839.recipenest.data.remote.SpoonacularApiService
 import uk.ac.tees.mad.s3525839.recipenest.model.Recipe
 
-class HomeViewModel(application: Application) : AndroidViewModel(application) {
+class SearchViewModel(application: Application) : AndroidViewModel(application) {
 
     private val recipeRepository: RecipeRepository
 
@@ -34,10 +34,12 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             .build()
         val spoonacularApiService = retrofit.create(SpoonacularApiService::class.java)
         recipeRepository = RecipeRepository(recipeDao, spoonacularApiService, apiKey)
+    }
 
+    fun searchRecipes(query: String) {
         viewModelScope.launch {
             try {
-                _recipes.value = recipeRepository.getRandomRecipes()
+                _recipes.value = recipeRepository.searchRecipes(query)
             } catch (e: Exception) {
                 Toast.makeText(getApplication(), "Failed to fetch recipes: ${e.message}", Toast.LENGTH_LONG).show()
             }

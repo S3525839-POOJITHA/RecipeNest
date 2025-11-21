@@ -2,6 +2,7 @@ package uk.ac.tees.mad.s3525839.recipenest.data
 
 import uk.ac.tees.mad.s3525839.recipenest.data.local.RecipeDao
 import uk.ac.tees.mad.s3525839.recipenest.data.remote.SpoonacularApiService
+import uk.ac.tees.mad.s3525839.recipenest.data.remote.responses.RecipeInformationResponse
 import uk.ac.tees.mad.s3525839.recipenest.model.Recipe
 
 class RecipeRepository(
@@ -11,20 +12,26 @@ class RecipeRepository(
 ) {
 
     suspend fun searchRecipes(query: String): List<Recipe> {
-        return try {
-            val recipes = spoonacularApiService.searchRecipes(query, apiKey).recipes.map { 
-                Recipe(it.id, it.title, it.image)
-            }
-            if (recipes.isNotEmpty()) {
-                recipeDao.insertRecipes(recipes)
-            }
-            recipes
-        } catch (e: Exception) {
-            recipeDao.searchRecipes("%${query}%")
+        val recipes = spoonacularApiService.searchRecipes(query, apiKey).recipes.map { 
+            Recipe(it.id!!, it.title!!, it.image!!)
         }
+        if (recipes.isNotEmpty()) {
+            recipeDao.insertRecipes(recipes)
+        }
+        return recipes
     }
 
-    suspend fun getAllRecipes(): List<Recipe> {
-        return recipeDao.getAllRecipes()
+    suspend fun getRandomRecipes(): List<Recipe> {
+        val recipes = spoonacularApiService.getRandomRecipes(apiKey).recipes.map { 
+            Recipe(it.id!!, it.title!!, it.image!!)
+        }
+        if (recipes.isNotEmpty()) {
+            recipeDao.insertRecipes(recipes)
+        }
+        return recipes
+    }
+
+    suspend fun getRecipeInformation(id: Int): RecipeInformationResponse {
+        return spoonacularApiService.getRecipeInformation(id, apiKey)
     }
 }

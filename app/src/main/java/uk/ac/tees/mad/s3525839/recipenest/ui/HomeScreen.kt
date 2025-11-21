@@ -1,52 +1,69 @@
 package uk.ac.tees.mad.s3525839.recipenest.ui
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
-import uk.ac.tees.mad.s3525839.recipenest.model.Recipe
-import uk.ac.tees.mad.s3525839.recipenest.ui.viewmodel.HomeViewModel
+import androidx.navigation.NavController
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 
-@Composable
-fun HomeScreen(homeViewModel: HomeViewModel = viewModel()) {
-    val recipes by homeViewModel.recipes.collectAsState()
-    var query by remember { mutableStateOf("") }
-
-    Column(modifier = Modifier.padding(16.dp)) {
-        OutlinedTextField(
-            value = query,
-            onValueChange = { 
-                query = it
-                homeViewModel.searchRecipes(query)
-             },
-            label = { Text("Search Recipes") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(recipes) { recipe ->
-                RecipeListItem(recipe)
-            }
-        }
-    }
+sealed class Screen(val route: String, val label: String, val icon: @Composable () -> Unit) {
+    object Home : Screen("home_content", "Home", { Icon(Icons.Default.Home, contentDescription = null) })
+    object Search : Screen("search", "Search", { Icon(Icons.Default.Search, contentDescription = null) })
+    object Favorites : Screen("favorites", "Favorites", { Icon(Icons.Default.Favorite, contentDescription = null) })
 }
 
 @Composable
-fun RecipeListItem(recipe: Recipe) {
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Row(modifier = Modifier.padding(8.dp)) {
-            AsyncImage(
-                model = recipe.image,
-                contentDescription = recipe.title,
-                modifier = Modifier.size(100.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(text = recipe.title, style = MaterialTheme.typography.bodyLarge)
+fun HomeScreen(mainNavController: NavController) {
+    val navController = rememberNavController()
+    val items = listOf(Screen.Home, Screen.Search, Screen.Favorites)
+
+    Scaffold(
+        bottomBar = {
+            NavigationBar {
+                val navBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentDestination = navBackStackEntry?.destination
+                items.forEach { screen ->
+                    NavigationBarItem(
+                        icon = screen.icon,
+                        label = { Text(screen.label) },
+                        selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
+                        onClick = {
+                            navController.navigate(screen.route) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                    )
+                }
+            }
+        }
+    ) { innerPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = Screen.Home.route,
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            composable(Screen.Home.route) { HomeContentScreen(mainNavController) }
+            composable(Screen.Search.route) { SearchScreen(mainNavController) }
+            composable(Screen.Favorites.route) { FavoritesScreen() }
         }
     }
 }
