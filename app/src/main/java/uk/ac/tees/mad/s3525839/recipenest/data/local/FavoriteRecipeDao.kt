@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 import uk.ac.tees.mad.s3525839.recipenest.model.FavoriteRecipe
 
 @Dao
@@ -12,7 +13,7 @@ interface FavoriteRecipeDao {
     suspend fun insert(favoriteRecipe: FavoriteRecipe)
 
     @Query("SELECT * FROM favorite_recipes")
-    suspend fun getAll(): List<FavoriteRecipe>
+    fun getAll(): Flow<List<FavoriteRecipe>>
 
     @Query("SELECT * FROM favorite_recipes WHERE id = :id")
     suspend fun getById(id: Int): FavoriteRecipe?
