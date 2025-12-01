@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -25,12 +26,13 @@ sealed class Screen(val route: String, val label: String, val icon: @Composable 
     object Home : Screen("home_content", "Home", { Icon(Icons.Default.Home, contentDescription = null) })
     object Search : Screen("search", "Search", { Icon(Icons.Default.Search, contentDescription = null) })
     object Favorites : Screen("favorites", "Favorites", { Icon(Icons.Default.Favorite, contentDescription = null) })
+    object Profile : Screen("profile", "Profile", { Icon(Icons.Default.Person, contentDescription = null) })
 }
 
 @Composable
 fun HomeScreen(mainNavController: NavController) {
     val navController = rememberNavController()
-    val items = listOf(Screen.Home, Screen.Search, Screen.Favorites)
+    val items = listOf(Screen.Home, Screen.Search, Screen.Favorites, Screen.Profile)
 
     Scaffold(
         bottomBar = {
@@ -64,6 +66,7 @@ fun HomeScreen(mainNavController: NavController) {
             composable(Screen.Home.route) { HomeContentScreen(mainNavController) }
             composable(Screen.Search.route) { SearchScreen(mainNavController) }
             composable(Screen.Favorites.route) { FavoritesScreen(mainNavController) }
+            composable(Screen.Profile.route) { ProfileScreen() }
         }
     }
 }

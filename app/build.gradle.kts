@@ -73,7 +73,9 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(platform("com.google.firebase:firebase-bom:32.3.1"))
     implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-storage-ktx")
     implementation("androidx.navigation:navigation-compose:2.7.6")
+    implementation("com.google.accompanist:accompanist-permissions:0.32.0")
 
     // Retrofit
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
