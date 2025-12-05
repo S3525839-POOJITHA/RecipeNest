@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import uk.ac.tees.mad.s3525839.recipenest.model.FavoriteRecipe
 import uk.ac.tees.mad.s3525839.recipenest.model.Recipe
 
-@Database(entities = [Recipe::class, FavoriteRecipe::class], version = 2, exportSchema = false)
+@Database(entities = [Recipe::class, FavoriteRecipe::class], version = 3, exportSchema = false)
 abstract class RecipeDatabase : RoomDatabase() {
     abstract fun recipeDao(): RecipeDao
     abstract fun favoriteRecipeDao(): FavoriteRecipeDao

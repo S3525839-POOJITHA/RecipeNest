@@ -15,7 +15,10 @@ import uk.ac.tees.mad.s3525839.recipenest.BuildConfig
 import uk.ac.tees.mad.s3525839.recipenest.data.RecipeRepository
 import uk.ac.tees.mad.s3525839.recipenest.data.local.RecipeDatabase
 import uk.ac.tees.mad.s3525839.recipenest.data.remote.SpoonacularApiService
+import uk.ac.tees.mad.s3525839.recipenest.data.remote.responses.Ingredient
+import uk.ac.tees.mad.s3525839.recipenest.data.remote.responses.Instruction
 import uk.ac.tees.mad.s3525839.recipenest.data.remote.responses.RecipeInformationResponse
+import uk.ac.tees.mad.s3525839.recipenest.data.remote.responses.Step
 import uk.ac.tees.mad.s3525839.recipenest.model.FavoriteRecipe
 
 class RecipeDetailViewModel(application: Application) : AndroidViewModel(application) {
@@ -24,6 +27,9 @@ class RecipeDetailViewModel(application: Application) : AndroidViewModel(applica
 
     private val _isFavorite = MutableStateFlow(false)
     val isFavorite: StateFlow<Boolean> = _isFavorite
+
+    private val _isCustomRecipe = MutableStateFlow(false)
+    val isCustomRecipe: StateFlow<Boolean> = _isCustomRecipe
 
     private val _recipe = MutableStateFlow<RecipeInformationResponse?>(null)
     val recipe: StateFlow<RecipeInformationResponse?> = _recipe
@@ -43,11 +49,31 @@ class RecipeDetailViewModel(application: Application) : AndroidViewModel(applica
     fun getRecipeDetails(recipeId: Int) {
         viewModelScope.launch {
             try {
-                _recipe.value = recipeRepository.getRecipeInformation(recipeId)
+                val localRecipe = recipeRepository.getRecipeById(recipeId)
+                if (localRecipe != null && localRecipe.isCustom) {
+                    _isCustomRecipe.value = true
+                    _recipe.value = RecipeInformationResponse(
+                        id = localRecipe.id,
+                        title = localRecipe.title,
+                        image = localRecipe.image,
+                        ingredients = localRecipe.ingredients?.split("\n")?.map { Ingredient(it) },
+                        instructions = localRecipe.instructions?.let { listOf(Instruction(steps = it.split("\n").mapIndexed { index, step -> Step(index + 1, step) })) }
+                    )
+                } else {
+                    _isCustomRecipe.value = false
+                    _recipe.value = recipeRepository.getRecipeInformation(recipeId)
+                }
                 isFavorite(recipeId)
             } catch (e: Exception) {
                 Toast.makeText(getApplication(), "Failed to fetch recipe details: ${e.message}", Toast.LENGTH_LONG).show()
             }
+        }
+    }
+
+    fun deleteRecipe(recipeId: Int, onRecipeDeleted: () -> Unit) {
+        viewModelScope.launch {
+            recipeRepository.deleteRecipeById(recipeId)
+            onRecipeDeleted()
         }
     }
 

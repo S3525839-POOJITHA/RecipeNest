@@ -15,7 +15,10 @@ fun HomeContentScreen(navController: NavController, homeViewModel: HomeViewModel
 
     LazyColumn {
         items(recipes) { recipe ->
-            RecipeListItem(recipe = recipe, navController = navController)
+            RecipeListItem(
+                recipe = recipe,
+                onClick = { navController.navigate("recipeDetail/${recipe.id}") }
+            )
         }
     }
 }
