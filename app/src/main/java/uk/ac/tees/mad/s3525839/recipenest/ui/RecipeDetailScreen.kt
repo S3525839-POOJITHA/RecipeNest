@@ -14,15 +14,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import uk.ac.tees.mad.s3525839.recipenest.ui.viewmodel.RecipeDetailViewModel
 
 @Composable
 fun RecipeDetailScreen(
     recipeId: Int?,
+    navController: NavController,
     recipeDetailViewModel: RecipeDetailViewModel = viewModel()
 ) {
     val isFavorite by recipeDetailViewModel.isFavorite.collectAsState()
+    val isCustomRecipe by recipeDetailViewModel.isCustomRecipe.collectAsState()
     val recipe by recipeDetailViewModel.recipe.collectAsState()
 
     LaunchedEffect(recipeId) {
@@ -48,8 +51,22 @@ fun RecipeDetailScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 recipe!!.title?.let { Text(text = it, style = androidx.compose.material3.MaterialTheme.typography.headlineMedium) }
                 Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = { recipeDetailViewModel.toggleFavorite() }) {
-                    Text(if (isFavorite) "Unsave" else "Save")
+                Row {
+                    Button(onClick = { recipeDetailViewModel.toggleFavorite() }) {
+                        Text(if (isFavorite) "Unsave" else "Save")
+                    }
+                    if (isCustomRecipe) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Button(onClick = { 
+                            recipeId?.let { 
+                                recipeDetailViewModel.deleteRecipe(it) { 
+                                    navController.popBackStack() 
+                                } 
+                            } 
+                        }) {
+                            Text("Delete")
+                        }
+                    }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Text("Ingredients", style = androidx.compose.material3.MaterialTheme.typography.headlineSmall)

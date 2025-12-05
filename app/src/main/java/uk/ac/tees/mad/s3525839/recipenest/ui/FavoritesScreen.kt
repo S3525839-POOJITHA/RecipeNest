@@ -35,7 +35,7 @@ fun FavoritesScreen(navController: NavController, favoritesViewModel: FavoritesV
             items(favoriteRecipes) { favorite ->
                 RecipeListItem(
                     recipe = Recipe(favorite.id, favorite.title, favorite.image),
-                    navController = navController
+                    onClick = { navController.navigate("recipeDetail/${favorite.id}") }
                 )
             }
         }

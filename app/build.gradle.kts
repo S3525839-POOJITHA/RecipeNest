@@ -52,6 +52,11 @@ android {
         compose = true
         buildConfig = true
     }
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = false
+        }
+    }
 }
 
 val localProperties = Properties()
@@ -61,6 +66,7 @@ if (localPropertiesFile.exists()) {
 }
 
 android.defaultConfig.buildConfigField("String", "API_KEY", "\"${localProperties.getProperty("apiKey")}\"")
+android.defaultConfig.buildConfigField("String", "CLOUDINARY_URL", "\"${localProperties.getProperty("cloudinary_url")}\"")
 
 dependencies {
     implementation(libs.androidx.core.ktx)
@@ -73,9 +79,9 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(platform("com.google.firebase:firebase-bom:32.3.1"))
     implementation("com.google.firebase:firebase-auth-ktx")
-    implementation("com.google.firebase:firebase-storage-ktx")
     implementation("androidx.navigation:navigation-compose:2.7.6")
     implementation("com.google.accompanist:accompanist-permissions:0.32.0")
+    implementation("com.cloudinary:cloudinary-android:3.1.2")
 
     // Retrofit
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
@@ -88,7 +94,7 @@ dependencies {
     ksp("androidx.room:room-compiler:2.6.1")
 
     // Coil
-    implementation("io.coil-kt:coil-compose:2.5.0")
+    implementation("io.coil-kt:coil-compose:2.7.0")
 
     // ViewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")

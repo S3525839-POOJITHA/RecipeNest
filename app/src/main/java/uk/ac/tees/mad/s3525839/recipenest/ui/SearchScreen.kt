@@ -35,7 +35,10 @@ fun SearchScreen(navController: NavController, searchViewModel: SearchViewModel 
         Spacer(modifier = Modifier.height(16.dp))
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             items(recipes) { recipe ->
-                RecipeListItem(recipe, navController)
+                RecipeListItem(
+                    recipe = recipe,
+                    onClick = { navController.navigate("recipeDetail/${recipe.id}") }
+                )
             }
         }
     }
